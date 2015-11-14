@@ -1,7 +1,7 @@
 import scipy as sc
 import numpy as np
 
-def parser(filename):
+def parser(filename, separator):
 	fileobj = open(filename, 'r')
 	lines = fileobj.readlines()[1:]
 	dicData = {}
@@ -9,7 +9,7 @@ def parser(filename):
 	sparseMatrix = []
 
 	for line in lines:
-            data = line.rstrip().replace('"','').split(';')
+            data = line.rstrip().replace('"','').split(separator)
             isbnSet.add(data[1])
             if data[0] not in dicData.keys():
             	dicData[data[0]] = {}
@@ -47,9 +47,11 @@ def asd(user, users, sm, pm):
 	print user_recommendations
 
 
-value = parser('BX-Book-Ratings-chico.csv') #TODO change for actual input
+value = parser('./ml-100k/u.data','\t') #TODO change for actual input
+print 'done'
 sparseMatrix = value[0]
 users = value[1]
 preferenceMatrix = build_preferences(sparseMatrix)
-asd("276747", users, sparseMatrix, preferenceMatrix)
+print 'done'
+asd("6", users, sparseMatrix, preferenceMatrix)
 
