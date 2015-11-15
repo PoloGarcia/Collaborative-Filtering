@@ -4,6 +4,10 @@ import heapq
 import dominate
 from dominate.tags import *
 import collections
+import codecs
+import webbrowser
+import os
+import random
 
 np.set_printoptions(threshold=np.nan)
 
@@ -112,12 +116,22 @@ def buildHTML(user,indexes,dicItems,itemIdSet,dataSet,values):
                     l.add(td(dataSet[str(user)][movie]))
                     l.add(td(dicItems[movie]['genre']))
 
-    f = open('output.html','w+')
-    f.write(str(doc))
+    f = codecs.open('output.html','w+',encoding='utf8')
+    f.write(ensure_unicode(doc))
     f.close()
 
+    new = 2 
+    brow = webbrowser.get('safari')
+    url = os.path.abspath("output.html")
+    # open a public URL, in this case, the webbrowser docs
+    brow.open(url,new=new)
     print 'done'
     return
+
+def ensure_unicode(v):
+    if isinstance(v, str):
+        v = v.decode('utf8')
+    return unicode(v) 
 
 def buildItems(filename,separator):
     fileobj = open(filename, 'r')
@@ -139,12 +153,10 @@ def buildItems(filename,separator):
 
 dicItems = buildItems('./ml-100k/u.item','|')
 sparseMatrix,users,itemIdSet,dataSet = parser('./ml-100k/u.data','\t') #TODO change for actual input
-#sparseMatrix = value[0]
-#users = value[1]
-#itemIdSet = value [3]
+user = random.randint(1, 943)
 preferenceMatrix = build_preferences(sparseMatrix)
-user_arrays = c_filter("6", users, sparseMatrix, preferenceMatrix)
-indexes,values = recommend("6", user_arrays[0], user_arrays[1], dataSet, itemIdSet, 10)
-buildHTML(6,indexes,dicItems,itemIdSet,dataSet,values)
+user_arrays = c_filter(str(user), users, sparseMatrix, preferenceMatrix)
+indexes,values = recommend(str(user), user_arrays[0], user_arrays[1], dataSet, itemIdSet, 10)
+buildHTML(user,indexes,dicItems,itemIdSet,dataSet,values)
 
 
