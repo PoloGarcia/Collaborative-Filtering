@@ -25,15 +25,31 @@ def parser(filename):
 			if isbn in dicData[user].keys():
 				row.append(dicData[user][isbn])
 			else:
-				row.append(-1)
+				row.append(0)
 		sparseMatrix.append(row)
 
 	sparseMatrix = np.array(sparseMatrix)
 
 	return sparseMatrix,users
 
+def build_preferences(sparseMatrix):
+	tSparseMatrix = sparseMatrix.transpose()
+	preferenceMatrix = np.dot(tSparseMatrix, sparseMatrix)
+
+	return preferenceMatrix
+
+def asd(user, users, sm, pm):
+	user_index = users.index(user)
+	user_preferences = sm[user_index]
+	user_recommendations = np.dot(pm, user_preferences)
+
+	print user_preferences
+	print user_recommendations
+
+
 value = parser('BX-Book-Ratings-chico.csv') #TODO change for actual input
 sparseMatrix = value[0]
 users = value[1]
-print sparseMatrix
-print users
+preferenceMatrix = build_preferences(sparseMatrix)
+asd("276747", users, sparseMatrix, preferenceMatrix)
+
