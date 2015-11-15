@@ -80,6 +80,7 @@ def recommend(user, up, ur, dataSet, items, top_n):
 
 def buildHTML(user,indexes,dicItems,itemIdSet,dataSet,values):
     print 'Building html output'
+    print '==============================================\n'
     doc = dominate.document(title='Top recommendations for ' + str(user))
     sortedData = sorted(dataSet[str(user)].items(),key=lambda x: x[1],reverse=True) 
     with doc.head:
@@ -90,6 +91,7 @@ def buildHTML(user,indexes,dicItems,itemIdSet,dataSet,values):
             h1('recommendations for user ' + str(user))
         with div(id='content', cls='small-7 large-centered columns'):
             h3('We recommend:')
+            print ('Recomendations for user %i:')% user
             with table().add(tbody()):
                 l = tr()
                 l.add(th('Place'))
@@ -101,6 +103,7 @@ def buildHTML(user,indexes,dicItems,itemIdSet,dataSet,values):
                     l = tr()
                     l.add(td(str(counter+1)))
                     l.add(td(a(dicItems[itemId]['name'],href=dicItems[itemId]['url'])))
+                    print str(counter+1) + '.-' + dicItems[itemId]['name']
                     l.add(td(dicItems[itemId]['genre']))
                     l.add(td(values[counter]))
 
@@ -117,15 +120,23 @@ def buildHTML(user,indexes,dicItems,itemIdSet,dataSet,values):
                     l.add(td(dicItems[movie]['genre']))
 
     f = codecs.open('output.html','w+',encoding='utf8')
-    f.write(ensure_unicode(doc))
-    f.close()
+    
+    print '\n=============================================='
 
-    new = 2 
-    brow = webbrowser.get('safari')
-    url = os.path.abspath("output.html")
-    # open a public URL, in this case, the webbrowser docs
-    brow.open(url,new=new)
+    try:
+        f.write(ensure_unicode(doc))
+        new = 2 
+        brow = webbrowser.get('safari')
+        url = os.path.abspath("output.html")
+        # open a public URL, in this case, the webbrowser docs
+        brow.open(url,new=new)
+    except Exception, e:
+        print 'Error building HTML output:'
+        print e
+
     print 'done'
+
+    f.close()
     return
 
 def ensure_unicode(v):
@@ -153,7 +164,7 @@ def buildItems(filename,separator):
 
 dicItems = buildItems('./ml-100k/u.item','|')
 sparseMatrix,users,itemIdSet,dataSet = parser('./ml-100k/u.data','\t') #TODO change for actual input
-user = random.randint(1, 943)
+user = 7 #random.randint(1, 943)
 preferenceMatrix = build_preferences(sparseMatrix)
 user_arrays = c_filter(str(user), users, sparseMatrix, preferenceMatrix)
 indexes,values = recommend(str(user), user_arrays[0], user_arrays[1], dataSet, itemIdSet, 10)
