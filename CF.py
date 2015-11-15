@@ -164,7 +164,7 @@ def buildItems(filename,separator):
 
 dicItems = buildItems('./ml-100k/u.item','|')
 sparseMatrix,users,itemIdSet,dataSet = parser('./ml-100k/u.data','\t') #TODO change for actual input
-user = 7 #random.randint(1, 943)
+user = random.randint(1, 943)
 preferenceMatrix = build_preferences(sparseMatrix)
 user_arrays = c_filter(str(user), users, sparseMatrix, preferenceMatrix)
 indexes,values = recommend(str(user), user_arrays[0], user_arrays[1], dataSet, itemIdSet, 10)
