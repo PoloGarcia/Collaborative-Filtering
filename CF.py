@@ -1,5 +1,6 @@
 import scipy as sc
 import numpy as np
+import heapq
 
 np.set_printoptions(threshold=np.nan)
 
@@ -47,10 +48,8 @@ def c_filter(user, users, sm, pm):
 
 	return user_preferences, user_recommendations
 
-def recommend(user, up, ur):
-	top_recommendation = np.amax(ur)
-
-	print top_recommendation
+def recommend(user, up, ur, top_n):
+	return heapq.nlargest(top_n, range(len(ur)), ur.take)
 
 
 value = parser('./ml-100k/u.data','\t') #TODO change for actual input
@@ -60,5 +59,5 @@ users = value[1]
 preferenceMatrix = build_preferences(sparseMatrix)
 print 'done'
 user_arrays = c_filter("6", users, sparseMatrix, preferenceMatrix)
-recommend("6", user_arrays[0], user_arrays[1])
+indexes = recommend("6", user_arrays[0], user_arrays[1], 3)
 
