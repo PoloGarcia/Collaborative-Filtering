@@ -1,6 +1,8 @@
 import scipy as sc
 import numpy as np
 
+np.set_printoptions(threshold=np.nan)
+
 def parser(filename, separator):
 	fileobj = open(filename, 'r')
 	lines = fileobj.readlines()[1:]
@@ -38,13 +40,17 @@ def build_preferences(sparseMatrix):
 
 	return preferenceMatrix
 
-def asd(user, users, sm, pm):
+def c_filter(user, users, sm, pm):
 	user_index = users.index(user)
 	user_preferences = sm[user_index]
 	user_recommendations = np.dot(pm, user_preferences)
 
-	print user_preferences
-	print user_recommendations
+	return user_preferences, user_recommendations
+
+def recommend(user, up, ur):
+	top_recommendation = np.amax(ur)
+
+	print top_recommendation
 
 
 value = parser('./ml-100k/u.data','\t') #TODO change for actual input
@@ -53,5 +59,6 @@ sparseMatrix = value[0]
 users = value[1]
 preferenceMatrix = build_preferences(sparseMatrix)
 print 'done'
-asd("6", users, sparseMatrix, preferenceMatrix)
+user_arrays = c_filter("6", users, sparseMatrix, preferenceMatrix)
+recommend("6", user_arrays[0], user_arrays[1])
 
