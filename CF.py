@@ -8,8 +8,10 @@ import codecs
 import webbrowser
 import os
 import random
+import scipy.spatial.distance as distance
+import time
 
-np.set_printoptions(threshold=np.nan)
+#np.set_printoptions(threshold=np.nan)
 
 def parser(filename, separator):
     print 'Building rating records...'
@@ -48,11 +50,22 @@ def parser(filename, separator):
 
 def build_preferences(sparseMatrix):
     print 'Building preference matrix...'
+    start_time = time.time()
     tSparseMatrix = sparseMatrix.transpose()
-    preferenceMatrix = np.dot(tSparseMatrix, sparseMatrix)
+    preferenceMatrix = []
+    for row in range(0,tSparseMatrix.shape[0]):
+        newRow = []
+        for row1 in range(0,tSparseMatrix.shape[0]):
+            cosineDist = distance.cosine(tSparseMatrix[row], tSparseMatrix[row1])
+            newRow.append(cosineDist)
+        preferenceMatrix.append(newRow)
+        print row
     print 'done'
 
-    return preferenceMatrix
+    print np.array(preferenceMatrix, dtype=np.double)
+    print np.array(preferenceMatrix, dtype=np.double).shape
+    print("--- %s seconds ---" % (time.time() - start_time))
+    return np.array(preferenceMatrix, dtype=np.double)
 
 def c_filter(user, users, sm, pm):
     print 'Filtering...'
@@ -164,7 +177,7 @@ def buildItems(filename,separator):
 
 dicItems = buildItems('./ml-100k/u.item','|')
 sparseMatrix,users,itemIdSet,dataSet = parser('./ml-100k/u.data','\t') #TODO change for actual input
-user = random.randint(1, 943)
+user = 6 #random.randint(1, 943)
 preferenceMatrix = build_preferences(sparseMatrix)
 user_arrays = c_filter(str(user), users, sparseMatrix, preferenceMatrix)
 indexes,values = recommend(str(user), user_arrays[0], user_arrays[1], dataSet, itemIdSet, 10)
