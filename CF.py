@@ -68,6 +68,44 @@ def build_preferences(sparseMatrix):
     print 'done'
     return np.array(preferenceMatrix, dtype=np.double)
 
+def weighted_sum(user, users, sm, pm, target):
+    movie = int(target)
+    i = 0
+    num = 0
+    den = 0
+    user_index = users.index(user)
+    user_preferences = sm[user_index]
+    for rating in user_preferences:
+        if rating != 0 and movie != i:
+            num += rating * pm.item((movie, i))
+            den += np.absolute(pm.item((movie, i)))
+        i += 1
+
+    # for each item similar to movie that the user has rated
+        # den +=  abs(imilarity between item and movie)
+        # num +=  product of the similarity between item and movie times user rating of item
+    
+    return num/den
+
+def recommend(user, users, sm, pm, top_n):
+    rec_values = []
+    for i in range(0, 1648):
+        rec_values.append(weighted_sum(user, users, sm, pm, i))
+        # np.append(rec_values, weighted_sum(user, users, sm, pm, i))
+
+    rec_values = np.array(rec_values)
+    indexes = heapq.nlargest(top_n, range(len(rec_values)), rec_values.take)
+
+    values = []
+    for index in indexes:
+        values.append(rec_values[index])
+
+    return indexes,values    
+
+
+
+
+"""
 def c_filter(user, users, sm, pm):
     print 'Filtering...'
     user_index = users.index(user)
@@ -91,6 +129,7 @@ def recommend(user, up, ur, dataSet, items, top_n):
         values.append(ur[index])
 
     return indexes,values
+"""
 
 def buildHTML(user,indexes,dicItems,itemIdSet,dataSet,values):
     print 'Building html output'
@@ -178,10 +217,9 @@ def buildItems(filename,separator):
 
 dicItems = buildItems('./ml-100k/u.item','|')
 sparseMatrix,users,itemIdSet,dataSet = parser('./ml-100k/u.data','\t') #TODO change for actual input
-user = random.randint(1, 943)
+user = 1#random.randint(1, 943)
 preferenceMatrix = build_preferences(sparseMatrix)
-user_arrays = c_filter(str(user), users, sparseMatrix, preferenceMatrix)
-indexes,values = recommend(str(user), user_arrays[0], user_arrays[1], dataSet, itemIdSet, 10)
+indexes,values = recommend(str(user), users, sparseMatrix, preferenceMatrix, 5)
 buildHTML(user,indexes,dicItems,itemIdSet,dataSet,values)
 
 
