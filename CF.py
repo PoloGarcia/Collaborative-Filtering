@@ -13,7 +13,7 @@ import time
 
 np.set_printoptions(threshold=np.nan)
 
-def parser(filename, separator):
+def parser(filename, separator,dicItems):
     print 'Building rating records...'
     fileobj = open(filename, 'r')
     lines = fileobj.readlines()[0:]
@@ -30,6 +30,7 @@ def parser(filename, separator):
             else: 
                 dicData[data[0]][data[1]] = int(data[2])
 
+    askMovies(dicData,dicItems)
     itemIdSet = list(itemIdSet)
     users = dicData.keys()
     for user in dicData.keys():
@@ -47,6 +48,27 @@ def parser(filename, separator):
     print 'done'
 
     return sparseMatrix,users,itemIdSet,dicData
+
+def askMovies(dicData,dicItems):
+    print 'We will present you some movies, and ask you about your rating for them'
+    print 'if you havent seen just hit enter'
+    print 'if you have seen any of them type the rating from 1 to 5'
+    raw_input('ok?')
+    os.system('cls' if os.name == 'nt' else 'clear')
+    seen = 0
+    dicData['944'] = {}
+    for movie in dicItems.keys():
+        answer = raw_input('Have you seen ' + dicItems[movie]['name'] + '?')
+        os.system('cls' if os.name == 'nt' else 'clear')
+        if answer not in ['1','2','3','4','5']:
+            pass
+        else:
+            seen +=1
+            dicData['944'][movie] = int(answer)
+            if seen > 30:
+                break
+    print 'Registering your historic'
+    print dicData['944']
 
 def build_preferences(sparseMatrix):
     print 'Building preference matrix...'
@@ -84,7 +106,6 @@ def weighted_sum(user, users, sm, pm, target):
     # for each item similar to movie that the user has rated
         # den +=  abs(imilarity between item and movie)
         # num +=  product of the similarity between item and movie times user rating of item
-    
     return num/den
 
 def recommend(user, users, sm, pm, top_n):
@@ -216,8 +237,8 @@ def buildItems(filename,separator):
     return dicItems
 
 dicItems = buildItems('./ml-100k/u.item','|')
-sparseMatrix,users,itemIdSet,dataSet = parser('./ml-100k/u.data','\t') #TODO change for actual input
-user = 1#random.randint(1, 943)
+sparseMatrix,users,itemIdSet,dataSet = parser('./ml-100k/u.data','\t',dicItems) #TODO change for actual input
+user = 944#random.randint(1, 943)
 preferenceMatrix = build_preferences(sparseMatrix)
 indexes,values = recommend(str(user), users, sparseMatrix, preferenceMatrix, 5)
 buildHTML(user,indexes,dicItems,itemIdSet,dataSet,values)
